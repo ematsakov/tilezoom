@@ -9,8 +9,8 @@ Documentation
 
 Demos and Examples
 -----------
-[2 Dollars (7356 x 3146)](http://labs.webcodingstudio.com/tilezoom/2dollars.html)
-[Mona Lisa (2835 x 4289)](http://labs.webcodingstudio.com/tilezoom/mona-lisa.html)
++ [2 Dollars (7356 x 3146)](http://labs.webcodingstudio.com/tilezoom/2dollars.html)
++ [Mona Lisa (2835 x 4289)](http://labs.webcodingstudio.com/tilezoom/mona-lisa.html)
 
 Try
 -----------
@@ -18,6 +18,6 @@ On this [TileGenerator](http://labs.webcodingstudio.com/tilegenerator) demo page
 
 Download
 -----------
-[jQuery TileZoom Plugin](http://labs.webcodingstudio.com/tilezoom/2dollars.html)
-[Examples](http://labs.webcodingstudio.com/uploads/jquery/tilezoom_examples.zip)
-[TileGenerator](http://labs.webcodingstudio.com/uploads/php/tilegenerator.zip)
++ [jQuery TileZoom Plugin](http://labs.webcodingstudio.com/tilezoom/2dollars.html)
++ [Examples](http://labs.webcodingstudio.com/uploads/jquery/tilezoom_examples.zip)
++ [TileGenerator](http://labs.webcodingstudio.com/uploads/php/tilegenerator.zip)
