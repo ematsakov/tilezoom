@@ -18,6 +18,8 @@ On this [TileGenerator](http://labs.webcodingstudio.com/tilegenerator) demo page
 
 Download
 -----------
-+ [jQuery TileZoom Plugin](http://labs.webcodingstudio.com/tilezoom/2dollars.html)
+Clone the repo, `git clone git://github.com/ematsakov/tilezoom.git`, or [download the latest release](https://github.com/ematsakov/tilezoom/zipball/master).
+
++ [jQuery TileZoom Plugin](http://labs.webcodingstudio.com/uploads/jquery/tilezoom.zip)
 + [Examples](http://labs.webcodingstudio.com/uploads/jquery/tilezoom_examples.zip)
 + [TileGenerator](http://labs.webcodingstudio.com/uploads/php/tilegenerator.zip)
