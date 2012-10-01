@@ -1,0 +1,110 @@
+div.zoom-container {
+	position: relative;
+	overflow: hidden;
+}
+.zoom-container.zoom-full {
+    position: fixed !important;
+	left: 0 !important;
+	top: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+	height: 100% !important;
+    width: 100% !important;
+}
+
+div.zoom-container div.zoom-holder {
+    left: 0;
+    position: relative;
+    top: 0;
+	overflow: hidden;
+	width: 0;
+	height: 0;
+}
+div.zoom-container div.zoom-holder img.zoom-thumb {
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: 0;
+}
+div.zoom-container div.zoom-tiles {
+    left: 0;
+    position: relative;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+div.zoom-container div.zoom-hotspots {
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+	z-index: 2;
+	background: url("images/transparent.gif") repeat scroll 0 0 transparent;
+}
+div.zoom-container div.zoom-holder .grab {
+	cursor: default;
+}
+div.zoom-container div.zoom-holder .grabbing {
+	cursor: move;
+}
+div.zoom-container div.zoom-hotspots a {
+	background: url("images/hotspot.png") no-repeat 0 0;
+    display: block;
+    overflow: hidden;
+    position: absolute;
+    text-indent: -9999px;
+	width: 24px;
+	height: 24px;
+	margin: -12px 0 0 -12px;
+}
+div.zoom-container div.zoom-hotspots a.active {
+	background: url("images/hotspot_active.png") no-repeat 0 0;
+	width: 40px;
+	height: 40px;
+	margin: -15px 0 0 -15px;
+}
+div.zoom-container div.zoom-navigation {
+	right: 0;
+	bottom: 0;
+    position: absolute;
+	z-index: 3;
+	display: none;
+}
+div.zoom-container:hover div.zoom-navigation {
+	display: block;
+}
+div.zoom-container:hover div.zoom-navigation a {
+	display: block;
+	width: 32px;
+	height: 32px;
+	background: url("images/nav-icons.png") no-repeat 0 0;
+	float: left;
+	text-indent: -9999px;
+	margin: 0 5px 5px 0px;
+	padding: 0;
+}
+div.zoom-container:hover div.zoom-navigation a.zoom-in {
+	background-position: 0 0;
+}
+div.zoom-container:hover div.zoom-navigation a.zoom-in:hover {
+	background-position: 0 -32px;
+}
+div.zoom-container:hover div.zoom-navigation a.zoom-out {
+	background-position: -32px 0;
+}
+div.zoom-container:hover div.zoom-navigation a.zoom-out:hover {
+	background-position: -32px -32px;
+}
+div.zoom-container:hover div.zoom-navigation a.go-home {
+	background-position: -64px 0;
+}
+div.zoom-container:hover div.zoom-navigation a.go-home:hover {
+	background-position: -64px -32px;
+}
+div.zoom-container:hover div.zoom-navigation a.toggle-full {
+	background-position: -96px 0;
+}
+div.zoom-container:hover div.zoom-navigation a.toggle-full:hover {
+	background-position: -96px -32px;
+}
