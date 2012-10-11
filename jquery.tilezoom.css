@@ -3,19 +3,18 @@ div.zoom-container {
 	overflow: hidden;
 }
 .zoom-container.zoom-full {
-    position: fixed !important;
 	left: 0 !important;
 	top: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
 	height: 100% !important;
-    width: 100% !important;
+	width: 100% !important;
 }
 
 div.zoom-container div.zoom-holder {
-    left: 0;
-    position: relative;
-    top: 0;
+	left: 0;
+	position: relative;
+	top: 0;
 	overflow: hidden;
 	width: 0;
 	height: 0;
@@ -69,12 +68,13 @@ div.zoom-container div.zoom-navigation {
 	bottom: 0;
     position: absolute;
 	z-index: 3;
-	display: none;
+	display:none;
 }
-div.zoom-container:hover div.zoom-navigation {
-	display: block;
+div.zoom-container:hover div.zoom-navigation,
+div.gestures div.zoom-navigation {
+	display: block !important;
 }
-div.zoom-container:hover div.zoom-navigation a {
+div.zoom-container div.zoom-navigation a {
 	display: block;
 	width: 32px;
 	height: 32px;
@@ -84,27 +84,27 @@ div.zoom-container:hover div.zoom-navigation a {
 	margin: 0 5px 5px 0px;
 	padding: 0;
 }
-div.zoom-container:hover div.zoom-navigation a.zoom-in {
+div.zoom-container div.zoom-navigation a.zoom-in {
 	background-position: 0 0;
 }
-div.zoom-container:hover div.zoom-navigation a.zoom-in:hover {
+div.zoom-container div.zoom-navigation a.zoom-in:hover {
 	background-position: 0 -32px;
 }
-div.zoom-container:hover div.zoom-navigation a.zoom-out {
+div.zoom-container div.zoom-navigation a.zoom-out {
 	background-position: -32px 0;
 }
-div.zoom-container:hover div.zoom-navigation a.zoom-out:hover {
+div.zoom-container div.zoom-navigation a.zoom-out:hover {
 	background-position: -32px -32px;
 }
-div.zoom-container:hover div.zoom-navigation a.go-home {
+div.zoom-container div.zoom-navigation a.go-home {
 	background-position: -64px 0;
 }
-div.zoom-container:hover div.zoom-navigation a.go-home:hover {
+div.zoom-container div.zoom-navigation a.go-home:hover {
 	background-position: -64px -32px;
 }
-div.zoom-container:hover div.zoom-navigation a.toggle-full {
+div.zoom-container div.zoom-navigation a.toggle-full {
 	background-position: -96px 0;
 }
-div.zoom-container:hover div.zoom-navigation a.toggle-full:hover {
+div.zoom-container div.zoom-navigation a.toggle-full:hover {
 	background-position: -96px -32px;
 }
