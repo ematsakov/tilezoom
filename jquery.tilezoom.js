@@ -166,6 +166,11 @@ function initTilezoom(defaults, options, $cont, index) {
 			initMousewheel($cont);
 		}	
 	});
+
+	// initialized callback
+	if(typeof settings.initialized == "function") {
+		settings.initialized($cont);
+	}
 }
 
 //parse XML
