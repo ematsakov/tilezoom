@@ -35,6 +35,7 @@ var methods = {
 	        dragBoundaries: true, // If we should constrain the drag to the boundaries
 	        wrapZoom: true, // If we're at the high level of resolution, go back to the start level
 			beforeZoom: function($cont) {}, // callback before a zoom happens
+			onZoom: function($cont, progress) {}, // callback for each zoom animation step
 			afterZoom: function($cont) {}, // callback after zoom has completed
 			callBefore: function($cont) {}, // this callback happens before dragging starts
 			callAfter: function($cont, coords) {}, // this callback happens at end of drag after released "mouseup"
@@ -758,16 +759,24 @@ function setSizePosition($cont, coords ,speed, callback) {
 	//apply styles
 	$tiles.hide();
 	$tiles.css(styles);
-	
-	$holder.stop(true,true).animate({
-		'width':levelImage.width,
-		'height':levelImage.height,
+
+	var easing = "swing";
+
+    $holder.stop(true,true).animate({
+		'width': levelImage.width,
+		'height': levelImage.height,
 		'left': pos.left,
 		'top': pos.top
-	}, speed, "swing");
+	}, {
+	    duration: speed,
+	    easing: easing,
+        progress: function(animation, progress) {
+            settings.onZoom($cont, progress);
+        }
+	});
 	
-	$hotspots.stop(true,true).animate(styles, speed, "swing");
-	$thumb.stop(true,true).animate(styles, speed, "swing", function() {
+	$hotspots.stop(true,true).animate(styles, speed, easing);
+	$thumb.stop(true,true).animate(styles, speed, easing, function() {
 		$tiles.fadeIn(speed);
 		if (typeof callback == "function") callback();
 		settings.inAction = false;
