@@ -306,14 +306,14 @@ function getScale(level, settings) {
 
 function getTiles(level, settings) {
 	var cells = getNumTiles(level, settings);
-	var yield = [];
+	var array = [];
 	
 	for (row=0;row<=(cells.rows-1);row++) {
 		for (column=0;column<=(cells.columns-1);column++) {
-			 yield.push(new Array(column,row));
+			 array.push(new Array(column,row));
 		}
 	}
-	return yield;
+	return array;
 }
 
 function getNumTiles(level, settings) {
