@@ -41,7 +41,7 @@ var methods = {
 			callBefore: function($cont) {}, // this callback happens before dragging starts
 			callAfter: function($cont, coords) {}, // this callback happens at end of drag after released "mouseup"
 			initialized: function($cont) {}, // this callback happens after tilezoom  has been fully initalized.
-			navigation: true, // navigation container ([true], [false], [DOM selector])
+			navigation: true, // navigation container ([true: show nav controls] or [false: don't show nav controls] or [DOM selector to insert controls in])
 			zoomIn: null, // zoomIn button
 			zoomOut: null, // zoomOut button
 			goHome: null, // goHome button, reset to default state
