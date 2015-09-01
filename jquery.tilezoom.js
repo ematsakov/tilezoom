@@ -18,21 +18,22 @@ function log() {
 }
 var methods = {
 	init : function( options ) {
-		var defaults = {
-			width: null, // original image width in pixels. *(required) if no xml file
-			height: null, // original image height in pixels *(required) if no xml file
-			path: null, // tiles directory. *(required) if no xml file
-			xml: null, // xml file with settings generated with Deep Zoom Tools
-			tileSize: 254, // tile size in pixels
-			overlap: 1, // tiles overlap
-			thumb: 'thumb.jpg', // thumbnail filename
-			format: 'jpg', // image format
-			speed: 500, //animation speed (ms)
-			mousewheel: false, // requires mousewheel event plugin: http://plugins.jquery.com/project/mousewheel
-			gestures: false, // requires touchit event plugin, https://github.com/danielglyde/TouchIt
-			zoomToCursor: true, // stay the same relative distance from the edge when zooming
-			offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
-			dragBoundaries: true, // If we should constrain the drag to the boundaries
+	    var defaults = {
+	        width: null, // original image width in pixels. *(required) if no xml file
+	        height: null, // original image height in pixels *(required) if no xml file
+	        path: null, // tiles directory. *(required) if no xml file
+	        xml: null, // xml file with settings generated with Deep Zoom Tools
+	        tileSize: 254, // tile size in pixels
+	        overlap: 1, // tiles overlap
+	        thumb: 'thumb.jpg', // thumbnail filename
+	        format: 'jpg', // image format
+	        speed: 500, //animation speed (ms)
+	        mousewheel: false, // requires mousewheel event plugin: http://plugins.jquery.com/project/mousewheel
+	        gestures: false, // requires hammer.js event plugin, https://github.com/hammerjs/hammer.js
+	        zoomToCursor: true, // stay the same relative distance from the edge when zooming
+	        offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
+	        dragBoundaries: true, // If we should constrain the drag to the boundaries
+	        wrapZoom: true, // If we're at the high level of resolution, go back to the start level
 			beforeZoom: function($cont) {}, // callback before a zoom happens
 			afterZoom: function($cont) {}, // callback after zoom has completed
 			callBefore: function($cont) {}, // this callback happens before dragging starts
@@ -369,6 +370,22 @@ function getVisibleTiles($cont) {
 }
 
 /*
+ * Interaction
+ */
+
+function onDoubleTap($cont, coords) {
+    var settings = $cont.data('tilezoom.settings');
+    var level = settings.level;
+    if (settings.level < settings.numLevels - 1) {
+        level = settings.level + 1;
+    } else if (settings.wrapZoom) {
+        // If we're at the high level of resolution, go back to the start level
+        level = settings.startLevel;
+    }
+    $cont.tilezoom('zoom', level, coords);
+}
+
+/*
 * Init Draggable funtionality
 */
 
@@ -388,11 +405,8 @@ function initDraggable($cont) {
 	$holder.dblclick(function(e) {
 		var coords = {};
 		coords.x = e.pageX;
-		coords.y = e.pageY;		
-		// If we're at the high level of resolution, go back to the start level
-		var level = (settings.level < settings.numLevels - 1) ? 
-			settings.level+1 : settings.startLevel;
-		$cont.tilezoom('zoom', level, coords);
+		coords.y = e.pageY;
+	    onDoubleTap($cont, coords);
 	});
 	
 	$holder.mousedown(function(e) {
@@ -443,7 +457,6 @@ function initDraggable($cont) {
 */
 function initMousewheel($cont) {
 	var settings = $cont.data('tilezoom.settings');
-	var $holder = settings.holder;
 	
 	if(settings.mousewheel && typeof $.fn.mousewheel != "undefined") {
 		$cont.unbind('mousewheel');
@@ -570,21 +583,8 @@ function initGestures($cont) {
 		hammertime.on("tap", function (ev) {
 		    coords.x = ev.center.x + ev.deltaX;
 		    coords.y = ev.center.y + ev.deltaY;
-		    // If we're at the high level of resolution, go back to the start level
-		    var level = (settings.level < settings.numLevels - 1) ?
-		        settings.level + 1 : settings.startLevel;
-		    $cont.tilezoom('zoom', level, coords);
+		    onDoubleTap($cont, coords);
 		});
-
-        // TODO: ON DOUBLE TAP:
-
-		//var coords = {};
-		//coords.x = x;
-		//coords.y = y;
-        //// If we're at the high level of resolution, go back to the start level
-		//var level = (settings.level < settings.numLevels - 1) ?
-        //    settings.level + 1 : settings.startLevel;
-		//$cont.tilezoom('zoom', level, coords);
 	}
 }
 
