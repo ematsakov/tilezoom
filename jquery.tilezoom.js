@@ -159,12 +159,9 @@ function initTilezoom(defaults, options, $cont, index) {
 	setSizePosition($cont, coords={}, 0, function() {
 		checkTiles($cont);
 		var isTouchSupported = (typeof(window.ontouchstart) != 'undefined');
-		if (isTouchSupported){
-			initGestures($cont);
-		} else {
-			initDraggable($cont);
-			initMousewheel($cont);
-		}	
+		if (isTouchSupported) initGestures($cont);
+		initDraggable($cont);
+		initMousewheel($cont);
 	});
 }
 
