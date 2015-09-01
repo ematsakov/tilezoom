@@ -397,6 +397,7 @@ function initDraggable($cont) {
 	});
 	
 	$holder.mousedown(function(e) {
+	    if(settings.gesturing) return false;
 		if(settings.inAction) return false;
 		$holder.stop(true,true);
 		$hotspots.removeClass('grab').addClass('grabbing');
@@ -411,7 +412,7 @@ function initDraggable($cont) {
             settings.callBefore($cont);
         }
 		$(document).unbind("mousemove");
-		$(document).mousemove(function(e) {
+		$(document).mousemove(function (e) {
 			if(dragging){
 				var offsetX =  e.pageX - startX;
 				var offsetY =  e.pageY - startY;
@@ -424,7 +425,7 @@ function initDraggable($cont) {
 			}
 		});
 		
-		$(document).one('mouseup', function() {
+		$(document).one('mouseup', function () {
 			$(document).unbind("mousemove");
 			$hotspots.removeClass('grabbing').addClass('grab');		
 			dragging = false;
@@ -523,8 +524,9 @@ function initGestures($cont) {
 		var pos;
 		
 		$holder.touchit({
-			onTouchStart: function (x, y) {
-				if(settings.inAction) return false;
+		    onTouchStart: function (x, y) {
+		        if(settings.inAction) return false;
+		        settings.gesturing = true;
 				$holder.stop(true,true);
 				dragging = true;
 				pos = {};
@@ -551,6 +553,7 @@ function initGestures($cont) {
 			},
 			onTouchEnd: function (x, y) {
 				dragging = false;
+				settings.gesturing = false;
 				checkTiles($cont);
 				//callAfter callback
 				if(typeof settings.callAfter == "function") {
