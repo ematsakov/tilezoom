@@ -27,7 +27,8 @@ var methods = {
 	        overlap: 1, // tiles overlap
 	        thumb: 'thumb.jpg', // thumbnail filename
 	        format: 'jpg', // image format
-	        speed: 500, //animation speed (ms)
+	        speed: 500, // animation speed (ms)
+            easing: 'swing', // animation easing (jquery easing function name)
 	        mousewheel: false, // requires mousewheel event plugin: http://plugins.jquery.com/project/mousewheel
 	        gestures: false, // requires hammer.js event plugin, https://github.com/hammerjs/hammer.js
 	        zoomToCursor: true, // stay the same relative distance from the edge when zooming
@@ -760,8 +761,6 @@ function setSizePosition($cont, coords ,speed, callback) {
 	$tiles.hide();
 	$tiles.css(styles);
 
-	var easing = "swing";
-
     $holder.stop(true,true).animate({
 		'width': levelImage.width,
 		'height': levelImage.height,
@@ -769,14 +768,14 @@ function setSizePosition($cont, coords ,speed, callback) {
 		'top': pos.top
 	}, {
 	    duration: speed,
-	    easing: easing,
+	    easing: settings.easing,
         progress: function(animation, progress) {
             settings.onZoom($cont, progress);
         }
 	});
 	
-	$hotspots.stop(true,true).animate(styles, speed, easing);
-	$thumb.stop(true,true).animate(styles, speed, easing, function() {
+    $hotspots.stop(true, true).animate(styles, speed, settings.easing);
+    $thumb.stop(true, true).animate(styles, speed, settings.easing, function () {
 		$tiles.fadeIn(speed);
 		if (typeof callback == "function") callback();
 		settings.inAction = false;
