@@ -392,7 +392,6 @@ function initDraggable($cont) {
 		// If we're at the high level of resolution, go back to the start level
 		var level = (settings.level < settings.numLevels - 1) ? 
 			settings.level+1 : settings.startLevel;
-		log("Double click! " + level);
 		$cont.tilezoom('zoom', level, coords);
 	});
 	
@@ -506,9 +505,8 @@ function initGestures($cont) {
 	
 	var settings = $cont.data('tilezoom.settings');
 	var $holder = settings.holder;
-	var $nav = settings.nav;
-	
-	if(settings.gestures && typeof $.fn.touchit != "undefined") {
+
+    if(settings.gestures && typeof Hammer != "undefined") {
 		// gestures don't affect inside the container
 		$cont.bind('touchmove', function(e){
 			e.preventDefault();
@@ -519,64 +517,74 @@ function initGestures($cont) {
 		var startLeft = 0;
 		var startTop = 0;
 		var startLevel;
-		var startX;
-		var startY;
 		var pos;
+
+		var hammertime = new Hammer($holder[0]);
+		hammertime.get("pinch").set({ enable: true });
+		hammertime.get("tap").set({ enable: true, taps: 2 });
+		hammertime.get("pan").set({ direction: Hammer.DIRECTION_ALL });
 		
-		$holder.touchit({
-		    onTouchStart: function (x, y) {
-		        if(settings.inAction) return false;
-		        settings.gesturing = true;
-				$holder.stop(true,true);
-				dragging = true;
-				pos = {};
-				startX = x;
-				startY = y;
-				startLeft = parseInt($holder.css('left'));
-				startTop = parseInt($holder.css('top'));
-				startLevel = settings.level;
-				if(typeof settings.callBefore == "function") {
-					settings.callBefore($cont);
-				}
-			},
-			onTouchMove: function (x, y) {
-				if(dragging){
-					var offsetX = x - startX;
-					var offsetY = y - startY;
-					pos.left = startLeft+offsetX;
-					pos.top = startTop+offsetY;
-					if (settings.dragBoundaries){
-						checkBoundaries($cont, pos);
-					}
-					$holder.css({'left': pos.left, 'top': pos.top});
-				}
-			},
-			onTouchEnd: function (x, y) {
-				dragging = false;
-				settings.gesturing = false;
-				checkTiles($cont);
-				//callAfter callback
-				if(typeof settings.callAfter == "function") {
-					settings.callAfter($cont, {'startLeft':startLeft, 'startTop':startTop, 'endLeft':pos.left, 'endTop':pos.top});
-			    }
-			},
-			onDoubleTap: function (x, y) {
-				var coords = {};
-				coords.x = x;
-				coords.y = y;
-				// If we're at the high level of resolution, go back to the start level
-				var level = (settings.level < settings.numLevels - 1) ? 
-					settings.level+1 : settings.startLevel;
-				$cont.tilezoom('zoom', level, coords);
-			},
-			onPinch: function (scale) {
-				dragging = false;
-				var level = (scale > 1) ? 
-					startLevel + Math.floor(scale):
-					startLevel - Math.floor(1/scale);				
-				$cont.tilezoom('zoom', level, {});
-			}
+		hammertime.on("panstart", function () {
+		    if (settings.inAction) return false;
+		    settings.gesturing = true;
+		    $holder.stop(true, true);
+		    dragging = true;
+		    pos = {};
+		    startLeft = parseInt($holder.css('left'));
+		    startTop = parseInt($holder.css('top'));
+		    startLevel = settings.level;
+		    if (typeof settings.callBefore == "function") {
+		        settings.callBefore($cont);
+		    }
 		});
+
+		hammertime.on("panmove", function (ev) {
+		    if (!dragging) return;
+		    pos.left = startLeft + ev.deltaX;
+		    pos.top = startTop + ev.deltaY;
+		    if (settings.dragBoundaries) {
+		        checkBoundaries($cont, pos);
+		    }
+		    $holder.css({ 'left': pos.left, 'top': pos.top });
+        });
+
+		hammertime.on("panend", function () {
+		    dragging = false;
+		    settings.gesturing = false;
+		    checkTiles($cont);
+		    //callAfter callback
+		    if (typeof settings.callAfter == "function") {
+		        settings.callAfter($cont, { 'startLeft': startLeft, 'startTop': startTop, 'endLeft': pos.left, 'endTop': pos.top });
+		    }
+        });
+
+		hammertime.on("pinch", function (ev) {
+		    dragging = false;
+		    var scale = ev.scale;
+		    var level = (scale > 1) ?
+                startLevel + Math.floor(scale) :
+                startLevel - Math.floor(1 / scale);
+		    $cont.tilezoom('zoom', level, {});
+		});
+
+		hammertime.on("tap", function (ev) {
+		    coords.x = ev.center.x + ev.deltaX;
+		    coords.y = ev.center.y + ev.deltaY;
+		    // If we're at the high level of resolution, go back to the start level
+		    var level = (settings.level < settings.numLevels - 1) ?
+		        settings.level + 1 : settings.startLevel;
+		    $cont.tilezoom('zoom', level, coords);
+		});
+
+        // TODO: ON DOUBLE TAP:
+
+		//var coords = {};
+		//coords.x = x;
+		//coords.y = y;
+        //// If we're at the high level of resolution, go back to the start level
+		//var level = (settings.level < settings.numLevels - 1) ?
+        //    settings.level + 1 : settings.startLevel;
+		//$cont.tilezoom('zoom', level, coords);
 	}
 }
 
