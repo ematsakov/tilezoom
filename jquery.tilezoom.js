@@ -18,23 +18,23 @@ function log() {
 }
 var methods = {
 	init : function( options ) {
-	    var defaults = {
-	        width: null, // original image width in pixels. *(required) if no xml file
-	        height: null, // original image height in pixels *(required) if no xml file
-	        path: null, // tiles directory. *(required) if no xml file
-	        xml: null, // xml file with settings generated with Deep Zoom Tools
-	        tileSize: 254, // tile size in pixels
-	        overlap: 1, // tiles overlap
-	        thumb: 'thumb.jpg', // thumbnail filename
-	        format: 'jpg', // image format
-	        speed: 500, // animation speed (ms)
-            easing: 'swing', // animation easing (jquery easing function name)
-	        mousewheel: false, // requires mousewheel event plugin: http://plugins.jquery.com/project/mousewheel
-	        gestures: false, // requires hammer.js event plugin, https://github.com/hammerjs/hammer.js
-	        zoomToCursor: true, // stay the same relative distance from the edge when zooming
-	        offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
-	        dragBoundaries: true, // If we should constrain the drag to the boundaries
-	        wrapZoom: true, // If we're at the high level of resolution, go back to the start level
+		var defaults = {
+			width: null, // original image width in pixels. *(required) if no xml file
+			height: null, // original image height in pixels *(required) if no xml file
+			path: null, // tiles directory. *(required) if no xml file
+			xml: null, // xml file with settings generated with Deep Zoom Tools
+			tileSize: 254, // tile size in pixels
+			overlap: 1, // tiles overlap
+			thumb: 'thumb.jpg', // thumbnail filename
+			format: 'jpg', // image format
+			speed: 500, // animation speed (ms)
+			easing: 'swing', // animation easing (jquery easing function name)
+			mousewheel: false, // requires mousewheel event plugin: http://plugins.jquery.com/project/mousewheel
+			gestures: false, // requires hammer.js event plugin, https://github.com/hammerjs/hammer.js
+			zoomToCursor: true, // stay the same relative distance from the edge when zooming
+			offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
+			dragBoundaries: true, // If we should constrain the drag to the boundaries
+			wrapZoom: true, // If we're at the high level of resolution, go back to the start level
 			beforeZoom: function($cont) {}, // callback before a zoom happens
 			onZoom: function($cont, progress) {}, // callback for each zoom animation step
 			afterZoom: function($cont) {}, // callback after zoom has completed
@@ -268,11 +268,11 @@ function initTiles($cont, level) {
 	$.each(tiles, function(index, tile) {
 		var src = levelDir+'/'+tile[0]+'_'+tile[1]+'.'+settings.format;
 		var offsetX = tile[0] == 0 ? 0 : settings.overlap;
-       	var offsetY = tile[1] == 0 ? 0 : settings.overlap;
+		var offsetY = tile[1] == 0 ? 0 : settings.overlap;
 		var id = 'zoom-'+settings.id+'-tile-'+tile[0]+'-'+tile[1];
 		var style = 'position: absolute; left: '+(tile[0]*settings.tileSize-offsetX)+'px; top: '+(tile[1]*settings.tileSize-offsetY)+'px; z-index: 0;';
 		$('<img/>', {
-		    _src: src,
+			_src: src,
 			id: id,
 			style: style
 		}).appendTo($tiles);
@@ -324,7 +324,7 @@ function getNumTiles(level, settings) {
 		var dimension = getDimension(level, settings);
 		var cells = {};
 		cells.columns = parseInt(Math.ceil(parseFloat(dimension.width) / settings.tileSize));
-  		cells.rows = parseInt(Math.ceil(parseFloat(dimension.height) / settings.tileSize));
+		cells.rows = parseInt(Math.ceil(parseFloat(dimension.height) / settings.tileSize));
 		return cells;
 	}
 	else {
@@ -376,15 +376,15 @@ function getVisibleTiles($cont) {
  */
 
 function onDoubleTap($cont, coords) {
-    var settings = $cont.data('tilezoom.settings');
-    var level = settings.level;
-    if (settings.level < settings.numLevels - 1) {
-        level = settings.level + 1;
-    } else if (settings.wrapZoom) {
-        // If we're at the high level of resolution, go back to the start level
-        level = settings.startLevel;
-    }
-    $cont.tilezoom('zoom', level, coords);
+	var settings = $cont.data('tilezoom.settings');
+	var level = settings.level;
+	if (settings.level < settings.numLevels - 1) {
+		level = settings.level + 1;
+	} else if (settings.wrapZoom) {
+		// If we're at the high level of resolution, go back to the start level
+		level = settings.startLevel;
+	}
+	$cont.tilezoom('zoom', level, coords);
 }
 
 /*
@@ -408,11 +408,11 @@ function initDraggable($cont) {
 		var coords = {};
 		coords.x = e.pageX;
 		coords.y = e.pageY;
-	    onDoubleTap($cont, coords);
+		onDoubleTap($cont, coords);
 	});
 	
 	$holder.mousedown(function(e) {
-	    if(settings.gesturing) return false;
+		if(settings.gesturing) return false;
 		if(settings.inAction) return false;
 		$holder.stop(true,true);
 		$hotspots.removeClass('grab').addClass('grabbing');
@@ -424,8 +424,8 @@ function initDraggable($cont) {
 		var pos = {};	
 		//callBefore callback
 		if(typeof settings.callBefore == "function") {
-            settings.callBefore($cont);
-        }
+			settings.callBefore($cont);
+		}
 		$(document).unbind("mousemove");
 		$(document).mousemove(function (e) {
 			if(dragging){
@@ -447,8 +447,8 @@ function initDraggable($cont) {
 			checkTiles($cont);
 			//callAfter callback
 			if(typeof settings.callAfter == "function") {
-	            settings.callAfter($cont, {'startLeft':startLeft, 'startTop':startTop, 'endLeft':pos.left, 'endTop':pos.top});
-	        }
+				settings.callAfter($cont, {'startLeft':startLeft, 'startTop':startTop, 'endLeft':pos.left, 'endTop':pos.top});
+			}
 		});
 		return false;
 	});
@@ -521,7 +521,7 @@ function initGestures($cont) {
 	var settings = $cont.data('tilezoom.settings');
 	var $holder = settings.holder;
 
-    if(settings.gestures && typeof Hammer != "undefined") {
+	if(settings.gestures && typeof Hammer != "undefined") {
 		// gestures don't affect inside the container
 		$cont.bind('touchmove', function(e){
 			e.preventDefault();
@@ -540,52 +540,52 @@ function initGestures($cont) {
 		hammertime.get("pan").set({ direction: Hammer.DIRECTION_ALL });
 		
 		hammertime.on("panstart", function () {
-		    if (settings.inAction) return false;
-		    settings.gesturing = true;
-		    $holder.stop(true, true);
-		    dragging = true;
-		    pos = {};
-		    startLeft = parseInt($holder.css('left'));
-		    startTop = parseInt($holder.css('top'));
-		    startLevel = settings.level;
-		    if (typeof settings.callBefore == "function") {
-		        settings.callBefore($cont);
-		    }
+			if (settings.inAction) return false;
+			settings.gesturing = true;
+			$holder.stop(true, true);
+			dragging = true;
+			pos = {};
+			startLeft = parseInt($holder.css('left'));
+			startTop = parseInt($holder.css('top'));
+			startLevel = settings.level;
+			if (typeof settings.callBefore == "function") {
+				settings.callBefore($cont);
+			}
 		});
 
 		hammertime.on("panmove", function (ev) {
-		    if (!dragging) return;
-		    pos.left = startLeft + ev.deltaX;
-		    pos.top = startTop + ev.deltaY;
-		    if (settings.dragBoundaries) {
-		        checkBoundaries($cont, pos);
-		    }
-		    $holder.css({ 'left': pos.left, 'top': pos.top });
-        });
+			if (!dragging) return;
+			pos.left = startLeft + ev.deltaX;
+			pos.top = startTop + ev.deltaY;
+			if (settings.dragBoundaries) {
+				checkBoundaries($cont, pos);
+			}
+			$holder.css({ 'left': pos.left, 'top': pos.top });
+		});
 
 		hammertime.on("panend", function () {
-		    dragging = false;
-		    settings.gesturing = false;
-		    checkTiles($cont);
-		    //callAfter callback
-		    if (typeof settings.callAfter == "function") {
-		        settings.callAfter($cont, { 'startLeft': startLeft, 'startTop': startTop, 'endLeft': pos.left, 'endTop': pos.top });
-		    }
-        });
+			dragging = false;
+			settings.gesturing = false;
+			checkTiles($cont);
+			//callAfter callback
+			if (typeof settings.callAfter == "function") {
+				settings.callAfter($cont, { 'startLeft': startLeft, 'startTop': startTop, 'endLeft': pos.left, 'endTop': pos.top });
+			}
+		});
 
 		hammertime.on("pinch", function (ev) {
-		    dragging = false;
-		    var scale = ev.scale;
-		    var level = (scale > 1) ?
-                startLevel + Math.floor(scale) :
-                startLevel - Math.floor(1 / scale);
-		    $cont.tilezoom('zoom', level, {});
+			dragging = false;
+			var scale = ev.scale;
+			var level = (scale > 1) ?
+				startLevel + Math.floor(scale) :
+				startLevel - Math.floor(1 / scale);
+			$cont.tilezoom('zoom', level, {});
 		});
 
 		hammertime.on("tap", function (ev) {
-		    coords.x = ev.center.x + ev.deltaX;
-		    coords.y = ev.center.y + ev.deltaY;
-		    onDoubleTap($cont, coords);
+			coords.x = ev.center.x + ev.deltaX;
+			coords.y = ev.center.y + ev.deltaY;
+			onDoubleTap($cont, coords);
 		});
 	}
 }
@@ -761,21 +761,21 @@ function setSizePosition($cont, coords ,speed, callback) {
 	$tiles.hide();
 	$tiles.css(styles);
 
-    $holder.stop(true,true).animate({
+	$holder.stop(true,true).animate({
 		'width': levelImage.width,
 		'height': levelImage.height,
 		'left': pos.left,
 		'top': pos.top
 	}, {
-	    duration: speed,
-	    easing: settings.easing,
-        progress: function(animation, progress) {
-            settings.onZoom($cont, progress);
-        }
+		duration: speed,
+		easing: settings.easing,
+		progress: function(animation, progress) {
+			settings.onZoom($cont, progress);
+		}
 	});
 	
-    $hotspots.stop(true, true).animate(styles, speed, settings.easing);
-    $thumb.stop(true, true).animate(styles, speed, settings.easing, function () {
+	$hotspots.stop(true, true).animate(styles, speed, settings.easing);
+	$thumb.stop(true, true).animate(styles, speed, settings.easing, function () {
 		$tiles.fadeIn(speed);
 		if (typeof callback == "function") callback();
 		settings.inAction = false;
