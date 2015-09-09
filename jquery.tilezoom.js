@@ -34,6 +34,8 @@ var methods = {
 			zoomToCursor: true, // stay the same relative distance from the edge when zooming
 			offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
 			dragBoundaries: true, // If we should constrain the drag to the boundaries
+			minZoomLevel: 0, // can't zoom out past level [minZoom]
+			maxZoomLevel: 9999, // can't zoom in past level [maxZoom]
 			wrapZoom: true, // If we're at the high level of resolution, go back to the start level
 			beforeZoom: function($cont) {}, // callback before a zoom happens
 			onZoom: function($cont, progress) {}, // callback for each zoom animation step
@@ -90,7 +92,8 @@ var methods = {
 			var settings = $cont.data('tilezoom.settings');
 			if(settings.inAction) return false;
 			
-			if(9 <= level && level < settings.numLevels && level != settings.level) {
+			if (level >= 9 && level >= settings.minZoomLevel && level <= settings.maxZoomLevel &&
+				level < settings.numLevels && level != settings.level) {
 				//beforeZoom callback
 				if(typeof settings.beforeZoom == "function") {
 					settings.beforeZoom($cont);
