@@ -165,9 +165,12 @@ function initTilezoom(defaults, options, $cont, index) {
 	setSizePosition($cont, coords={}, 0, function() {
 		checkTiles($cont);
 		var isTouchSupported = (typeof(window.ontouchstart) != 'undefined');
-		if (isTouchSupported) initGestures($cont);
-		initDraggable($cont);
-		initMousewheel($cont);
+		if (isTouchSupported) {
+		    initGestures($cont);
+		} else {
+		    initDraggable($cont);
+		    initMousewheel($cont);
+		}
 	});
 }
 
@@ -375,22 +378,6 @@ function getVisibleTiles($cont) {
 }
 
 /*
- * Interaction
- */
-
-function onDoubleTap($cont, coords) {
-	var settings = $cont.data('tilezoom.settings');
-	var level = settings.level;
-	if (settings.level < settings.numLevels - 1) {
-		level = settings.level + 1;
-	} else if (settings.wrapZoom) {
-		// If we're at the high level of resolution, go back to the start level
-		level = settings.startLevel;
-	}
-	$cont.tilezoom('zoom', level, coords);
-}
-
-/*
 * Init Draggable funtionality
 */
 
@@ -407,15 +394,7 @@ function initDraggable($cont) {
 	$holder.unbind('mousedown');
 	$holder.unbind('mousemove');
 	
-	$holder.dblclick(function(e) {
-		var coords = {};
-		coords.x = e.pageX;
-		coords.y = e.pageY;
-		onDoubleTap($cont, coords);
-	});
-	
 	$holder.mousedown(function(e) {
-		if(settings.gesturing) return false;
 		if(settings.inAction) return false;
 		$holder.stop(true,true);
 		$hotspots.removeClass('grab').addClass('grabbing');
@@ -537,14 +516,13 @@ function initGestures($cont) {
 		var startLevel;
 		var pos;
 
-		var hammertime = new Hammer($holder[0]);
-		hammertime.get("pinch").set({ enable: true });
-		hammertime.get("tap").set({ enable: true, taps: 2 });
-		hammertime.get("pan").set({ direction: Hammer.DIRECTION_ALL });
+		var manager = new Hammer.Manager($holder[0], { preventDefault: true });
+
+	    manager.add(new Hammer.Pinch({ threshold: 0.1 }));
+	    manager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
 		
-		hammertime.on("panstart", function () {
-			if (settings.inAction) return false;
-			settings.gesturing = true;
+		manager.on("panstart", function () {
+		    if (settings.inAction) return false;
 			$holder.stop(true, true);
 			dragging = true;
 			pos = {};
@@ -556,8 +534,8 @@ function initGestures($cont) {
 			}
 		});
 
-		hammertime.on("panmove", function (ev) {
-			if (!dragging) return;
+		manager.on("panmove", function (ev) {
+		    if (!dragging) return;
 			pos.left = startLeft + ev.deltaX;
 			pos.top = startTop + ev.deltaY;
 			if (settings.dragBoundaries) {
@@ -566,9 +544,8 @@ function initGestures($cont) {
 			$holder.css({ 'left': pos.left, 'top': pos.top });
 		});
 
-		hammertime.on("panend", function () {
-			dragging = false;
-			settings.gesturing = false;
+		manager.on("panend", function () {
+		    dragging = false;
 			checkTiles($cont);
 			//callAfter callback
 			if (typeof settings.callAfter == "function") {
@@ -576,19 +553,13 @@ function initGestures($cont) {
 			}
 		});
 
-		hammertime.on("pinch", function (ev) {
+	    manager.on("pinch", function (ev) {
 			dragging = false;
 			var scale = ev.scale;
 			var level = (scale > 1) ?
 				startLevel + Math.floor(scale) :
 				startLevel - Math.floor(1 / scale);
 			$cont.tilezoom('zoom', level, {});
-		});
-
-		hammertime.on("tap", function (ev) {
-			coords.x = ev.center.x + ev.deltaX;
-			coords.y = ev.center.y + ev.deltaY;
-			onDoubleTap($cont, coords);
 		});
 	}
 }
