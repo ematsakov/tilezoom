@@ -522,11 +522,9 @@ function initGestures($cont) {
 	    manager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
 		
 	    manager.on("panstart", function () {
-	        console.log("panstart");
 		    if (settings.inAction) return false;
 			$holder.stop(true, true);
 			dragging = true;
-			pos = {};
 			startLeft = parseInt($holder.css('left'));
 			startTop = parseInt($holder.css('top'));
 			startLevel = settings.level;
@@ -536,8 +534,8 @@ function initGestures($cont) {
 		});
 
 	    manager.on("panmove", function (ev) {
-	        console.log("panmove");
-		    if (!dragging) return;
+	        if (!dragging) return;
+	        if (!pos) pos = {};
 			pos.left = startLeft + ev.deltaX;
 			pos.top = startTop + ev.deltaY;
 			if (settings.dragBoundaries) {
@@ -547,7 +545,7 @@ function initGestures($cont) {
 		});
 
 	    manager.on("panend", function () {
-	        console.log("panend");
+	        if (!pos) return;
 		    dragging = false;
 			checkTiles($cont);
 			//callAfter callback
@@ -562,8 +560,6 @@ function initGestures($cont) {
 			var level = (scale > 1) ?
 				startLevel + Math.floor(scale) :
 				startLevel - Math.floor(1 / scale);
-			console.log("pinch level before : " + startLevel);
-			console.log("pinch level after : " + level);
 			$cont.tilezoom('zoom', level, {});
 		});
 	}
