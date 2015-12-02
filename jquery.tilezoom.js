@@ -166,6 +166,11 @@ function initTilezoom(defaults, options, $cont, index) {
 			initMousewheel($cont);
 		}	
 	});
+
+	// initialized callback
+	if(typeof settings.initialized == "function") {
+		settings.initialized($cont);
+	}
 }
 
 //parse XML
@@ -789,8 +794,8 @@ function checkBoundaries($cont, pos) {
 	var minLeft = contWidth-levelImage.width-boundaryOffset.x;
 	var minTop = contHeight-levelImage.height-boundaryOffset.y;
 	
-	if(pos.left<minLeft) pos.left = minLeft;
-	if(pos.top<minTop) pos.top = minTop;
+	if(pos.left<minLeft || isNaN(pos.left)) pos.left = minLeft;
+	if(pos.top<minTop || isNaN(pos.top)) pos.top = minTop;
 	
 	if(pos.left>=boundaryOffset.x) pos.left = boundaryOffset.x;
 	if(pos.top>=boundaryOffset.y) pos.top = boundaryOffset.y;
