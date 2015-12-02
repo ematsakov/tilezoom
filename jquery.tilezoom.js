@@ -27,18 +27,23 @@ var methods = {
 			overlap: 1, // tiles overlap
 			thumb: 'thumb.jpg', // thumbnail filename
 			format: 'jpg', // image format
-			speed: 500, //animation speed (ms)
+			speed: 500, // animation speed (ms)
+			easing: 'swing', // animation easing (jquery easing function name)
 			mousewheel: false, // requires mousewheel event plugin: http://plugins.jquery.com/project/mousewheel
-			gestures: false, // requires touchit event plugin, https://github.com/danielglyde/TouchIt
+			gestures: false, // requires hammer.js event plugin, https://github.com/hammerjs/hammer.js
 			zoomToCursor: true, // stay the same relative distance from the edge when zooming
 			offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
 			dragBoundaries: true, // If we should constrain the drag to the boundaries
+			minZoomLevel: 0, // can't zoom out past level [minZoom]
+			maxZoomLevel: 9999, // can't zoom in past level [maxZoom]
+			wrapZoom: true, // If we're at the high level of resolution, go back to the start level
 			beforeZoom: function($cont) {}, // callback before a zoom happens
+			onZoom: function($cont, progress) {}, // callback for each zoom animation step
 			afterZoom: function($cont) {}, // callback after zoom has completed
 			callBefore: function($cont) {}, // this callback happens before dragging starts
 			callAfter: function($cont, coords) {}, // this callback happens at end of drag after released "mouseup"
 			initialized: function($cont) {}, // this callback happens after tilezoom  has been fully initalized.
-			navigation: true, // navigation container ([true], [false], [DOM selector])
+			navigation: true, // navigation container ([true: show nav controls] or [false: don't show nav controls] or [DOM selector to insert controls in])
 			zoomIn: null, // zoomIn button
 			zoomOut: null, // zoomOut button
 			goHome: null, // goHome button, reset to default state
@@ -87,7 +92,8 @@ var methods = {
 			var settings = $cont.data('tilezoom.settings');
 			if(settings.inAction) return false;
 			
-			if(9 <= level && level < settings.numLevels && level != settings.level) {
+			if (level >= 9 && level >= settings.minZoomLevel && level <= settings.maxZoomLevel &&
+				level < settings.numLevels && level != settings.level) {
 				//beforeZoom callback
 				if(typeof settings.beforeZoom == "function") {
 					settings.beforeZoom($cont);
@@ -159,12 +165,12 @@ function initTilezoom(defaults, options, $cont, index) {
 	setSizePosition($cont, coords={}, 0, function() {
 		checkTiles($cont);
 		var isTouchSupported = (typeof(window.ontouchstart) != 'undefined');
-		if (isTouchSupported){
-			initGestures($cont);
+		if (isTouchSupported) {
+		    initGestures($cont);
 		} else {
-			initDraggable($cont);
-			initMousewheel($cont);
-		}	
+		    initDraggable($cont);
+		    initMousewheel($cont);
+		}
 	});
 
 	// initialized callback
@@ -273,11 +279,11 @@ function initTiles($cont, level) {
 	$.each(tiles, function(index, tile) {
 		var src = levelDir+'/'+tile[0]+'_'+tile[1]+'.'+settings.format;
 		var offsetX = tile[0] == 0 ? 0 : settings.overlap;
-       	var offsetY = tile[1] == 0 ? 0 : settings.overlap;
+		var offsetY = tile[1] == 0 ? 0 : settings.overlap;
 		var id = 'zoom-'+settings.id+'-tile-'+tile[0]+'-'+tile[1];
 		var style = 'position: absolute; left: '+(tile[0]*settings.tileSize-offsetX)+'px; top: '+(tile[1]*settings.tileSize-offsetY)+'px; z-index: 0;';
 		$('<img/>', {
-		    _src: src,
+			_src: src,
 			id: id,
 			style: style
 		}).appendTo($tiles);
@@ -314,14 +320,14 @@ function getScale(level, settings) {
 
 function getTiles(level, settings) {
 	var cells = getNumTiles(level, settings);
-	var yield = [];
+	var array = [];
 	
 	for (row=0;row<=(cells.rows-1);row++) {
 		for (column=0;column<=(cells.columns-1);column++) {
-			 yield.push(new Array(column,row));
+			 array.push(new Array(column,row));
 		}
 	}
-	return yield;
+	return array;
 }
 
 function getNumTiles(level, settings) {
@@ -329,7 +335,7 @@ function getNumTiles(level, settings) {
 		var dimension = getDimension(level, settings);
 		var cells = {};
 		cells.columns = parseInt(Math.ceil(parseFloat(dimension.width) / settings.tileSize));
-  		cells.rows = parseInt(Math.ceil(parseFloat(dimension.height) / settings.tileSize));
+		cells.rows = parseInt(Math.ceil(parseFloat(dimension.height) / settings.tileSize));
 		return cells;
 	}
 	else {
@@ -393,17 +399,6 @@ function initDraggable($cont) {
 	$holder.unbind('mousedown');
 	$holder.unbind('mousemove');
 	
-	$holder.dblclick(function(e) {
-		var coords = {};
-		coords.x = e.pageX;
-		coords.y = e.pageY;		
-		// If we're at the high level of resolution, go back to the start level
-		var level = (settings.level < settings.numLevels - 1) ? 
-			settings.level+1 : settings.startLevel;
-		log("Double click! " + level);
-		$cont.tilezoom('zoom', level, coords);
-	});
-	
 	$holder.mousedown(function(e) {
 		if(settings.inAction) return false;
 		$holder.stop(true,true);
@@ -416,10 +411,10 @@ function initDraggable($cont) {
 		var pos = {};	
 		//callBefore callback
 		if(typeof settings.callBefore == "function") {
-            settings.callBefore($cont);
-        }
+			settings.callBefore($cont);
+		}
 		$(document).unbind("mousemove");
-		$(document).mousemove(function(e) {
+		$(document).mousemove(function (e) {
 			if(dragging){
 				var offsetX =  e.pageX - startX;
 				var offsetY =  e.pageY - startY;
@@ -432,15 +427,15 @@ function initDraggable($cont) {
 			}
 		});
 		
-		$(document).one('mouseup', function() {
+		$(document).one('mouseup', function () {
 			$(document).unbind("mousemove");
 			$hotspots.removeClass('grabbing').addClass('grab');		
 			dragging = false;
 			checkTiles($cont);
 			//callAfter callback
 			if(typeof settings.callAfter == "function") {
-	            settings.callAfter($cont, {'startLeft':startLeft, 'startTop':startTop, 'endLeft':pos.left, 'endTop':pos.top});
-	        }
+				settings.callAfter($cont, {'startLeft':startLeft, 'startTop':startTop, 'endLeft':pos.left, 'endTop':pos.top});
+			}
 		});
 		return false;
 	});
@@ -451,7 +446,6 @@ function initDraggable($cont) {
 */
 function initMousewheel($cont) {
 	var settings = $cont.data('tilezoom.settings');
-	var $holder = settings.holder;
 	
 	if(settings.mousewheel && typeof $.fn.mousewheel != "undefined") {
 		$cont.unbind('mousewheel');
@@ -513,9 +507,8 @@ function initGestures($cont) {
 	
 	var settings = $cont.data('tilezoom.settings');
 	var $holder = settings.holder;
-	var $nav = settings.nav;
-	
-	if(settings.gestures && typeof $.fn.touchit != "undefined") {
+
+	if(settings.gestures && typeof Hammer != "undefined") {
 		// gestures don't affect inside the container
 		$cont.bind('touchmove', function(e){
 			e.preventDefault();
@@ -525,62 +518,54 @@ function initGestures($cont) {
 		var dragging = false;
 		var startLeft = 0;
 		var startTop = 0;
-		var startLevel;
-		var startX;
-		var startY;
+		var startLevel = settings.level;
 		var pos;
+
+		var manager = new Hammer.Manager($holder[0], { preventDefault: true });
+
+	    manager.add(new Hammer.Pinch({ threshold: 0.1 }));
+	    manager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
 		
-		$holder.touchit({
-			onTouchStart: function (x, y) {
-				if(settings.inAction) return false;
-				$holder.stop(true,true);
-				dragging = true;
-				pos = {};
-				startX = x;
-				startY = y;
-				startLeft = parseInt($holder.css('left'));
-				startTop = parseInt($holder.css('top'));
-				startLevel = settings.level;
-				if(typeof settings.callBefore == "function") {
-					settings.callBefore($cont);
-				}
-			},
-			onTouchMove: function (x, y) {
-				if(dragging){
-					var offsetX = x - startX;
-					var offsetY = y - startY;
-					pos.left = startLeft+offsetX;
-					pos.top = startTop+offsetY;
-					if (settings.dragBoundaries){
-						checkBoundaries($cont, pos);
-					}
-					$holder.css({'left': pos.left, 'top': pos.top});
-				}
-			},
-			onTouchEnd: function (x, y) {
-				dragging = false;
-				checkTiles($cont);
-				//callAfter callback
-				if(typeof settings.callAfter == "function") {
-					settings.callAfter($cont, {'startLeft':startLeft, 'startTop':startTop, 'endLeft':pos.left, 'endTop':pos.top});
-			    }
-			},
-			onDoubleTap: function (x, y) {
-				var coords = {};
-				coords.x = x;
-				coords.y = y;
-				// If we're at the high level of resolution, go back to the start level
-				var level = (settings.level < settings.numLevels - 1) ? 
-					settings.level+1 : settings.startLevel;
-				$cont.tilezoom('zoom', level, coords);
-			},
-			onPinch: function (scale) {
-				dragging = false;
-				var level = (scale > 1) ? 
-					startLevel + Math.floor(scale):
-					startLevel - Math.floor(1/scale);				
-				$cont.tilezoom('zoom', level, {});
+	    manager.on("panstart", function () {
+		    if (settings.inAction) return false;
+			$holder.stop(true, true);
+			dragging = true;
+			startLeft = parseInt($holder.css('left'));
+			startTop = parseInt($holder.css('top'));
+			startLevel = settings.level;
+			if (typeof settings.callBefore == "function") {
+				settings.callBefore($cont);
 			}
+		});
+
+	    manager.on("panmove", function (ev) {
+	        if (!dragging) return;
+	        if (!pos) pos = {};
+			pos.left = startLeft + ev.deltaX;
+			pos.top = startTop + ev.deltaY;
+			if (settings.dragBoundaries) {
+				checkBoundaries($cont, pos);
+			}
+			$holder.css({ 'left': pos.left, 'top': pos.top });
+		});
+
+	    manager.on("panend", function () {
+	        if (!pos) return;
+		    dragging = false;
+			checkTiles($cont);
+			//callAfter callback
+			if (typeof settings.callAfter == "function") {
+				settings.callAfter($cont, { 'startLeft': startLeft, 'startTop': startTop, 'endLeft': pos.left, 'endTop': pos.top });
+			}
+		});
+
+	    manager.on("pinch", function (ev) {
+			dragging = false;
+			var scale = ev.scale;
+			var level = (scale > 1) ?
+				startLevel + Math.floor(scale) :
+				startLevel - Math.floor(1 / scale);
+			$cont.tilezoom('zoom', level, {});
 		});
 	}
 }
@@ -755,16 +740,22 @@ function setSizePosition($cont, coords ,speed, callback) {
 	//apply styles
 	$tiles.hide();
 	$tiles.css(styles);
-	
+
 	$holder.stop(true,true).animate({
-		'width':levelImage.width,
-		'height':levelImage.height,
+		'width': levelImage.width,
+		'height': levelImage.height,
 		'left': pos.left,
 		'top': pos.top
-	}, speed, "swing");
+	}, {
+		duration: speed,
+		easing: settings.easing,
+		progress: function(animation, progress) {
+			settings.onZoom($cont, progress);
+		}
+	});
 	
-	$hotspots.stop(true,true).animate(styles, speed, "swing");
-	$thumb.stop(true,true).animate(styles, speed, "swing", function() {
+	$hotspots.stop(true, true).animate(styles, speed, settings.easing);
+	$thumb.stop(true, true).animate(styles, speed, settings.easing, function () {
 		$tiles.fadeIn(speed);
 		if (typeof callback == "function") callback();
 		settings.inAction = false;
