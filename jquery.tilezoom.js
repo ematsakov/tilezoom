@@ -246,7 +246,7 @@ function buildOptions($cont, settings) {
 
 function initNumLevels(settings) {
 	var maxDimension = Math.max(settings.width, settings.height);
-	var numLevels = parseInt(Math.ceil(Math.log(maxDimension)/Math.log(2)) + 1);
+	var numLevels = parseInt(Math.ceil(Math.log(maxDimension/settings.tileSize)/Math.log(2)) + 1);
 	return numLevels;
 };
 
