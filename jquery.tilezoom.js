@@ -239,14 +239,14 @@ function buildOptions($cont, settings) {
 	settings.numLevels = initNumLevels(settings);
 	if(settings.startLevel == undefined) {
 		settings.startLevel = initLevel(settings);
-		settings.level = settings.startLevel;
 	}
+	settings.level = settings.startLevel;
 	$cont.data('tilezoom.settings', settings);
 }
 
 function initNumLevels(settings) {
 	var maxDimension = Math.max(settings.width, settings.height);
-	var numLevels = parseInt(Math.ceil(Math.log(maxDimension)/Math.log(2)) + 1);
+	var numLevels = parseInt(Math.ceil(Math.log(maxDimension/settings.tileSize)/Math.log(2)) + 1);
 	return numLevels;
 };
 
