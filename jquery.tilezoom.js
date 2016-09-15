@@ -239,8 +239,8 @@ function buildOptions($cont, settings) {
 	settings.numLevels = initNumLevels(settings);
 	if(settings.startLevel == undefined) {
 		settings.startLevel = initLevel(settings);
-		settings.level = settings.startLevel;
 	}
+	settings.level = settings.startLevel;
 	$cont.data('tilezoom.settings', settings);
 }
 
