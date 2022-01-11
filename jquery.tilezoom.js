@@ -2,7 +2,7 @@
  * jQuery WCS Tile Zoom Plugin
  * Examples and documentation at: http://demo.webcodingstudio.com/tile-zoom/
  * Copyright (c) 2011 Evgeny Matsakov
- * Version: 1.2 (2-DEC-2015)
+ * Version: 1.2.1 (11-JAN-2022)
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
@@ -33,6 +33,8 @@ var methods = {
 			gestures: false, // requires hammer.js event plugin, https://github.com/hammerjs/hammer.js
 			zoomToCursor: true, // stay the same relative distance from the edge when zooming
 			offset: '20%', //boundaries offset (px or %). If 0 image move side to side and up to down
+			startTop: 0,
+			startLeft: 0,
 			dragBoundaries: true, // If we should constrain the drag to the boundaries
 			minZoomLevel: 0, // can't zoom out past level [minZoom]
 			maxZoomLevel: 9999, // can't zoom in past level [maxZoom]
@@ -68,7 +70,7 @@ var methods = {
 				if(typeof options.initialized == "function") {
 					options.initialized($cont);
 				}
-			}		
+			}
 		});
 	},
 	destroy : function( ) {
@@ -92,7 +94,7 @@ var methods = {
 			var settings = $cont.data('tilezoom.settings');
 			if(settings.inAction) return false;
 			
-			if (level >= 9 && level >= settings.minZoomLevel && level <= settings.maxZoomLevel &&
+			if (level >= settings.minZoomLevel && level >= settings.minZoomLevel && level <= settings.maxZoomLevel &&
 				level < settings.numLevels && level != settings.level) {
 				//beforeZoom callback
 				if(typeof settings.beforeZoom == "function") {
@@ -251,11 +253,12 @@ function initNumLevels(settings) {
 };
 
 function initLevel(settings) {
-	var level = 9;
+	var initLevel = settings.minZoomLevel + 1;
+	var level = initLevel;
 	var $cont = settings.cont;
 	var contWidth = $cont.width();
 	var contHeight = $cont.height();
-	while(9 <= level && level < settings.numLevels) {
+	while(initLevel <= level && level < settings.numLevels) {
 		var levelImage = getImage(level, settings);
 		if(levelImage.width>=contWidth || levelImage.height>=contHeight) {
 			break;
@@ -408,7 +411,7 @@ function initDraggable($cont) {
 		startTop = parseInt($holder.css('top'));
 		var startX = e.pageX;
 		var startY = e.pageY;
-		var pos = {};	
+		var pos = {};
 		//callBefore callback
 		if(typeof settings.callBefore == "function") {
 			settings.callBefore($cont);
@@ -679,18 +682,21 @@ function setSizePosition($cont, coords ,speed, callback) {
 	var settings = $cont.data('tilezoom.settings');
 	settings.inAction = true;
 	$cont.data('tilezoom.settings', settings);
-	
+
 	var $holder = settings.holder;
 	var $thumb = settings.thumb;
 	var $tiles = settings.tiles;
 	var $hotspots = settings.hotspots;
-	
+
 	//size
 	var levelImage = getImage(settings.level, settings);
-	
+
 	//position
 	var pos = {};
-	var ratio = parseFloat(levelImage.width/$holder.width());
+	ratio = 1;
+	if( $holder.width() > 0 ) {
+		ratio = parseFloat(levelImage.width/$holder.width());
+	}
 	var left = parseInt($holder.css('left'));
 	var top = parseInt($holder.css('top'));
 	
@@ -708,8 +714,28 @@ function setSizePosition($cont, coords ,speed, callback) {
 	}
 	//move center to current center ( + - zoom )
 	else {
-		var centerX = parseInt($cont.width()/2) - left;
-		pos.left = -parseInt(($cont.width() / -2 ) + centerX * ratio);
+		//image smaller than container
+		if( levelImage.width < $cont.width() ) {
+				var centerX = parseInt($cont.width()/2) - left;
+				pos.left = -parseInt(($cont.width() / -2 ) + centerX * ratio);
+		}
+		//image bigger than container
+		else {
+			if(settings.startLeft != 0 ) {
+				var startLeft = 0;
+				if(settings.startLeft.indexOf('%')!==-1) {
+					startLeft = parseInt(parseFloat(settings.startLeft)*levelImage.width/100);
+				}
+				else {
+					startLeft = parseInt(settings.startLeft);
+				}
+				pos.left = -startLeft;
+			}
+			else {
+				var centerX = parseInt($cont.width()/2) - left;
+				pos.left = parseInt((levelImage.width / -2 ) + centerX * ratio);
+			}
+		}
 	}
 	
 	//move center to coord ( hotspot click )
@@ -726,12 +752,32 @@ function setSizePosition($cont, coords ,speed, callback) {
 	}
 	//move center to current center ( + - zoom )
 	else {
-		var centerY = parseInt($cont.height()/2) - top;
-		pos.top = -parseInt(($cont.height() / -2 ) + centerY * ratio);
+		//image smaller than container
+		if( levelImage.height < $cont.height() ) {
+			var centerY = parseInt($cont.height()/2) - top;
+			pos.top = -parseInt(($cont.height() / -2 ) + centerY * ratio);
+		}
+		//image bigger than container
+		else {
+			if(settings.startTop != 0 ) {
+				var startTop = 0;
+				if(settings.startTop.indexOf('%')!==-1) {
+					startTop = parseInt(parseFloat(settings.startTop)*levelImage.height/100);
+				}
+				else {
+					startTop = parseInt(settings.startTop);
+				}
+				pos.top = -startTop;
+			}
+			else {
+				var centerY = parseInt($cont.height()/2) - top;
+				pos.top = parseInt((levelImage.height / -2 ) + centerY * ratio);
+			}
+		}
 	}
-	
+
 	checkBoundaries($cont, pos);
-	
+
 	var styles = {
 		'width': levelImage.width,
 		'height': levelImage.height
